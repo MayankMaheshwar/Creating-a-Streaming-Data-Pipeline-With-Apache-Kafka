@@ -1,0 +1,25 @@
+Go back to SSH Window A. You can now inspect the output of the WordCount demo application by reading from its output topic streams-wordcount-output:
+
+kafka-console-consumer.sh --bootstrap-server localhost:9092 \
+    --topic streams-wordcount-output \
+    --from-beginning \
+    --formatter kafka.tools.DefaultMessageFormatter \
+    --property print.key=true \
+    --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer \
+    --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+The following output data should be printed to the console:
+
+all     1
+streams 1
+lead    1
+to      1
+kafka   1
+hello   1
+kafka   2
+streams 2
+join    1
+kafka   3
+summit  1
+Here, the first column is the Kafka message key in java.lang.String format, and the second column is the message value in java.lang.Long format. You can terminate the console consumer at any point by entering Ctrl-C from the keyboard.
+
+As discussed above, a streaming word count algorithm continuously computes the latest word counts from the input data, and, in this specific demo application, continuously writes the latest counts of words as its output. You can check out the Confluent documentation to learn more about the duality between streams and tables. In fact, the output you have seen above is actually the changelog stream of a KTable, with the KTable being the result of the aggregation operation performed by the WordCount demo application.

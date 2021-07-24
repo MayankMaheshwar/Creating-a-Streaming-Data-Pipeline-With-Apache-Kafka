@@ -1,0 +1,38 @@
+Prepare the Topics and the Input Data
+
+
+You will now send some input data to a Kafka topic, which will be subsequently processed by a Kafka Streams application.
+
+First, you need to create the input topic streams-plaintext-input. In the same SSH window, execute the following command:
+
+kafka-topics.sh --create \
+    --zookeeper localhost:2181 \
+    --replication-factor 1 \
+    --partitions 1 \
+    --topic streams-plaintext-input
+Next, create the output topic streams-wordcount-output:
+
+kafka-topics.sh --create \
+    --zookeeper localhost:2181 \
+    --replication-factor 1 \
+    --partitions 1 \
+    --topic streams-wordcount-output
+
+
+Next, you generate some input data and store it in a local file at /tmp/file-input.txt:
+
+echo -e "all streams lead to kafka\nhello kafka streams\njoin kafka summit" > /tmp/file-input.txt
+The resulting file will have the following contents:
+
+all streams lead to kafka
+
+hello kafka streams
+
+join kafka summit
+
+Lastly, you will send this input data to the input topic:
+
+cat /tmp/file-input.txt | kafka-console-producer.sh --broker-list localhost:9092 --topic streams-plaintext-input
+The Kafka console producer reads the data from STDIN line-by-line, and publishes each line as a separate Kafka message to the topic streams-plaintext-input, where the message key is null and the message value is the respective line such as all streams lead to kafka, encoded as a string.
+
+In practice, these steps will typically look a bit different and noticeably happen in parallel. For example, input data might not be sourced originally from a local file but sent directly from distributed devices, and the data would be flowing continuously into Kafka. Similarly, the stream processing application (as you'll see in the next section) might already be up and running before the first input data is being sent.

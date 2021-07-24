@@ -1,0 +1,49 @@
+In the Cloud Console, open the Navigation menu and click Marketplace.
+
+Locate the Apache Kafka® deployment by searching for Kafka Click to Deploy.
+
+Click on Kafka Cluster (with replication). It should look like this:
+
+
+
+Configure the Kafka VM instance
+In the Console, open the Navigation Menu and select Compute Engine > VM Instances. Next to the VM name kafka-1-kafka-vm-0, click the SSH button to connect to the Kafka VM. (This will be SSH Window A)
+
+
+export PROJECT_ID=$(gcloud config get-value project)
+
+Copy the generated jar file from the storage bucket to the Kafka VM and create the destination sub-directory for the Kafka connector:
+
+gsutil cp gs://cloud-training/gsp285/binary/cps-kafka-connector.jar .
+sudo mkdir -p /opt/kafka/connectors
+Move the downloaded jar file to the directory created for the Kafka application and update the java connector file permissions to be executable:
+
+sudo mv ./cps-kafka-connector.jar /opt/kafka/connectors/
+sudo chmod +x /opt/kafka/connectors/cps-kafka-connector.jar
+Change the current directory to /opt/kafka/config and use an editor create cps-sink-connector.properties.
+
+cd /opt/kafka/config
+sudo nano cps-sink-connector.properties
+Add the following content to the file:
+
+name=CPSSinkConnector
+connector.class=com.google.pubsub.kafka.sink.CloudPubSubSinkConnector
+tasks.max=10
+topics=to-pubsub
+cps.topic=from-kafka
+cps.project=$PROJECT_ID
+After adding the content, press Ctrl-O and Enter to save the changes, then Ctrl-X to exit.
+
+Using an editor create another file named cps-source-connector.properties.
+
+sudo nano cps-source-connector.properties
+Add the following content to the file:
+
+name=CPSSourceConnector
+connector.class=com.google.pubsub.kafka.source.CloudPubSubSourceConnector
+tasks.max=10
+kafka.topic=from-pubsub
+cps.subscription=to-kafka-sub
+cps.project=$PROJECT_ID
+Again, press Ctrl-O and Enter to save the changes, then Ctrl-X to exit.
+
